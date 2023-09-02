@@ -16,7 +16,6 @@ import SignUpScreen from './screens/SignUpScreen';
 import ProductDetailScreen from './screens/ProductDetailScreen';
 import PaymentSuccessfulScreen from './screens/PaymentSuccessfulScreen';
 import CheckOutScreen from './screens/CheckOutScreen';
-import SuccessScreen from './screens/SuccessScreen';
 
 
 
@@ -30,7 +29,6 @@ const ProfileStack = () => (
     <StackNav.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }} />
     <StackNav.Screen name="LogIn" component={LogInScreen} />
     <StackNav.Screen name="SignUp" component={SignUpScreen} />
-    <StackNav.Screen name="Success" component={SuccessScreen} />
   </StackNav.Navigator>
 );
 

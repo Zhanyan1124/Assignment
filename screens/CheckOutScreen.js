@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
 import OrderSummary from '../component/OrderSummary';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default class CheckOutScreen extends Component {
   

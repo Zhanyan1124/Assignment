@@ -53,6 +53,7 @@ export default class ProfileScreen extends Component {
     // Clear the user data in AsyncStorage and navigate back to the original profile screen
     try {
       await AsyncStorage.removeItem('userData');
+      await AsyncStorage.removeItem('cartItems');
       this.setState({ userData: null });
     } catch (error) {
       console.log('Error clearing user data:', error);

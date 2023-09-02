@@ -8,10 +8,7 @@ export default class ShoppingCartScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      
       shoppingCart: [],
-      
-
     };
     
   }
@@ -21,6 +18,10 @@ export default class ShoppingCartScreen extends Component {
       if (cartItems) {
         const parsedCartItems = JSON.parse(cartItems);
         this.setState({ shoppingCart: parsedCartItems });
+      }
+      //if the asynstorage is empty
+      else{
+        this.setState({ shoppingCart: []});
       }
     } catch (error) {
       console.error('Error retrieving cart items:', error);
@@ -36,6 +37,7 @@ export default class ShoppingCartScreen extends Component {
       this.fetchCartItems();
     });
   }
+
 
   componentWillUnmount() {
     
@@ -79,34 +81,46 @@ export default class ShoppingCartScreen extends Component {
 
   // Navigate to the 'CheckOutScreen'
   handleCheckOut = () => {
-    this.props.navigation.navigate('CheckOutScreen', { shoppingCart: this.state.shoppingCart });
+    this.props.navigation.navigate('Product', {
+      screen: 'CheckOutScreen',
+      params: {
+        shoppingCart: this.state.shoppingCart
+      },
+    });
   };
 
   // Removes an item from the shopping cart based on the product ID
-  handleRemoveFromCart = async(productId) => {
+  handleRemoveFromCart = async (productId) => {
     this.setState((prevState) => ({
       shoppingCart: prevState.shoppingCart.filter((item) => item.product.id !== productId),
-    }));
-    try {
-      const updatedCart = this.state.shoppingCart.filter(item => item.product.id !== productId);
-      this.setState({ shoppingCart: updatedCart });
-  
-      // Update AsyncStorage to reflect the change
-      await AsyncStorage.setItem('cartItems', JSON.stringify(updatedCart));
-    } catch (error) {
-      console.error('Error removing item from cart:', error);
-    }
+    }),async()=>{
+          try {
+            // Update AsyncStorage to reflect the change
+            await AsyncStorage.setItem('cartItems', JSON.stringify(this.state.shoppingCart));
+          } catch (error) {
+            console.error('Error removing item from cart:', error);
+          }
+        }
+    );
   };
 
   // Updates the quantity of an item in the shopping cart based on the product ID and the new quantity 
-  handleQuantityChange = (productId, newQuantity) => {
+  handleQuantityChange = async (productId, newQuantity) => {
     const parsedQuantity = newQuantity === '' ? '' : parseInt(newQuantity, 10);
   
     this.setState((prevState) => ({
       shoppingCart: prevState.shoppingCart.map((item) =>
         item.product.id === productId ? { ...item, quantity: parsedQuantity } : item
       ),
-    }));
+    }), async()=>{
+        try {
+          // Update AsyncStorage to reflect the change
+          await AsyncStorage.setItem('cartItems', JSON.stringify(this.state.shoppingCart));
+        } catch (error) {
+          console.error('Error updating item quantity from cart:', error);
+        }
+      }
+    );
   };
   
   

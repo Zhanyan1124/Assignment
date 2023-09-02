@@ -1,7 +1,24 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+const clearCart = async () => {
+  try {
+    await AsyncStorage.removeItem('cartItems');
+    console.log('Cart items removed successfully.');
+  } catch (error) {
+    console.error('Error removing cart items:', error);
+  }
+};
 
 export default class PaymentSuccessfulScreen extends Component {
+
+  async componentDidMount(){
+    await clearCart();
+  }
+
+
   
   render() {
     const { navigation } = this.props;
@@ -16,6 +33,7 @@ export default class PaymentSuccessfulScreen extends Component {
       </View>
     );
   }
+  
 }
 
 const styles = StyleSheet.create({

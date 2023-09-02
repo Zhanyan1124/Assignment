@@ -79,11 +79,7 @@ const {username, password} = this.state;
               username : row.name,
               password : row.password,
               email: row.email,
-              age: row.age
-
-        
-              
-
+              age: row.age   
             })
             try {
               const user={
@@ -156,7 +152,7 @@ const {username, password} = this.state;
             onChangeText={(text) => 
             this.setState({ password: text })}
             secureTextEntry={true}
-            keyboardType="default"
+            keyboardType="default"S
           />
 
           <TouchableOpacity style={styles.button} onPress={this.handleLogIn}>
