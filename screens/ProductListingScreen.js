@@ -2,139 +2,60 @@ import React, {Component} from 'react';
 import {StyleSheet, Image, Text, View, TouchableOpacity, ScrollView, FlatList} from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 
-// Dummy Products Array
-const products = [
-    {
-      name: 'KangKung1',
-      id: '001',
-      category: 'vegetable',
-      image: require('../images/product1.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'KangKung2',
-      id: '002',
-      category: 'vegetable',
-      image: require('../images/product1.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'KangKung3',
-      id: '003',
-      category: 'vegetable',
-      image: require('../images/product1.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Apple1',
-      id: '004',
-      category: 'fruit',
-      image: require('../images/apple.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Apple2',
-      id: '005',
-      category: 'fruit',
-      image: require('../images/apple.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Apple3',
-      id: '006',
-      category: 'fruit',
-      image: require('../images/apple.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Lays1',
-      id: '007',
-      category: 'snack',
-      image: require('../images/lays.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Lays2',
-      id: '008',
-      category: 'snack',
-      image: require('../images/lays.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Lays3',
-      id: '009',
-      category: 'snack',
-      image: require('../images/lays.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Beer1',
-      id: '010',
-      category: 'beverage',
-      image: require('../images/heineken.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Beer2',
-      id: '011',
-      category: 'beverage',
-      image: require('../images/heineken.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Beer3',
-      id: '012',
-      category: 'beverage',
-      image: require('../images/heineken.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Cheese1',
-      id: '013',
-      category: 'frozen',
-      image: require('../images/cheese.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Cheese2',
-      id: '014',
-      category: 'frozen',
-      image: require('../images/cheese.jpg'),
-      price: 1.00,
-    },
-    {
-      name: 'Cheese3',
-      id: '015',
-      category: 'frozen',
-      image: require('../images/cheese.jpg'),
-      price: 1.00,
-    },
-]
-
-
+let config = require('../Config');
 export default class ProductListingScreen extends Component{
   
   // Initial  Value
-  state = {
-    selectedCategory: '',
-    searchQuery: '',
-    products: []
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedCategory: '',
+      searchQuery: '',
+      products: [],
+      isFetching : false
+    };
+    this._load = this._load.bind(this);
+  }
+
+  _load() {
+    let url = config.settings.serverPath + '/api/products';
+    this.setState({isFetching: true});
+    fetch(url)
+      .then(response => {
+        console.log(response);
+        if (!response.ok) {
+          Alert.alert('Error:', response.status.toString());
+          throw Error('Error ' + response.status);
+        }
+        this.setState({isFetching: false});
+        return response.json();
+      })
+      .then(products => {
+        console.log(products);
+        this.setState({products: products});
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
+  componentDidMount() {
+    this._load();
+  }
+
 
 // renderProductFunction for FlatList 
 renderProduct = ({item}) => {
-
   return (
     <View style={styles.productItem}>
-      <TouchableOpacity onPress={() => this.props.navigation.navigate('ProductDetailScreen', { product: item })}>
-        <Image source={item.image} style={styles.productImage} resizeMode="cover" />
+      <TouchableOpacity onPress={() => this.props.navigation.navigate('ProductDetailScreen', { product: item.productId })}>
+        <Image source={require(item.image)} style={styles.productImage} resizeMode="cover" />
         <View style={styles.productInfo}>
-        <Text style={styles.productName}>{item.name}</Text>
+        <Text style={styles.productName}>{item.productName}</Text>
         <Text style={styles.productPrice}>RM{item.price.toFixed(2)}</Text>
         </View>
       </TouchableOpacity>
     </View>
-
   )
 }
   // For Search Function
@@ -144,11 +65,12 @@ renderProduct = ({item}) => {
 
   render () {
     // To filter the products that match both the selected category and the search query
-    const { selectedCategory, searchQuery } = this.state;
+    const { selectedCategory, searchQuery, products } = this.state;
+
 
     const filteredProducts = products.filter((product) => {
       const categoryMatch = !selectedCategory || product.category === selectedCategory;
-      const nameMatch = product.name.toLowerCase().startsWith(searchQuery.toLowerCase());
+      const nameMatch = product.productName.toLowerCase().startsWith(searchQuery.toLowerCase());
       return categoryMatch && nameMatch;
     });
 
