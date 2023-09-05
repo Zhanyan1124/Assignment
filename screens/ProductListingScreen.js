@@ -118,6 +118,7 @@ export default class ProductListingScreen extends Component{
   state = {
     selectedCategory: '',
     searchQuery: '',
+    products: []
   };
 
 // renderProductFunction for FlatList 
