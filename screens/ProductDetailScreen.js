@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {StyleSheet, Image, Text, View, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+let config = require('../Config');
 export default class ProductDetailScreen extends Component{
 
   // Initial Value
@@ -8,11 +10,39 @@ export default class ProductDetailScreen extends Component{
     super(props)
 
     this.state = {
+      id: this.props.route.params.productID,
+      product: [],
       quantity: 1,
-      //Dummy Cart
       shoppingCart: [],
       cartItems: []
     };
+  }
+
+  _loadByID() {
+    console.log(this.state.id);
+    let url = config.settings.serverPath + '/api/products/' + this.state.id;
+    console.log(url);
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          Alert.alert('Error:', response.status.toString());
+          throw Error('Error ' + response.status);
+        }
+        return response.json();
+      })
+      .then(product => {
+        console.log(product)
+        this.setState({
+          product: product
+        });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  componentDidMount(){
+    this._loadByID();
   }
   
   
@@ -29,21 +59,18 @@ export default class ProductDetailScreen extends Component{
   };
 
   // This method handle adding items into shopping cart
-  
     handleAddToCart = async () => {
-    
-      const { product } = this.props.route.params;
       const { quantity } = this.state;
-      
-    
+      const { product } = this.state;
       try {
+
         // Retrieve existing cart items from AsyncStorage
         const existingCartItems = await AsyncStorage.getItem('cartItems');
         
         const cartItems = existingCartItems ? JSON.parse(existingCartItems) : [];
     
         // Check if the selected product is already in the cart
-        const existingCartItemIndex = cartItems.findIndex(item => item.product.id === product.id);
+        const existingCartItemIndex = cartItems.findIndex(item => item.product.productId === product.productId);
     
         if (existingCartItemIndex !== -1) {
           console.log('Updating existing cart item');
@@ -75,16 +102,14 @@ export default class ProductDetailScreen extends Component{
     };
   
   render () {
-
-    const { product } = this.props.route.params;
-
+ 
     return (
       <View style={styles.productDetailContainer}>
         {/* Show Product Image, Name, and Price */}
         <View style={styles.productDetail}>
-          <Image source={product.image} style={styles.productImage} resizeMode="cover" />
-          <Text style={styles.productName}>{product.name}</Text>
-          <Text style={styles.productPrice}>RM{product.price.toFixed(2)}</Text>
+          <Image source={{uri: this.state.product.image}} style={styles.productImage} resizeMode="cover" />
+          <Text style={styles.productName}>{this.state.product.productName}</Text>
+          <Text style={styles.productPrice}>RM{Number(this.state.product.price).toFixed(2)}</Text>
         </View>
 
       {/* Shows Quantity and +/- buttons */}
@@ -137,8 +162,9 @@ const styles = StyleSheet.create ({
   },
   
   productImage: {
-    width: '100%',
-    height: 200, 
+    marginLeft: '5%',
+    width: '90%',
+    height: 280, 
     borderRadius: 8,
     marginBottom: 10, 
   },

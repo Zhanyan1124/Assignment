@@ -47,9 +47,9 @@ export default class ShoppingCartScreen extends Component {
   // renderCartItemFunction for FlatList 
   renderCartItem = ({ item }) => (
     <View style={styles.cartItem}>
-    <Image source={item.product.image} style={styles.productImage} />
+    <Image source={{uri: item.product.image}} style={styles.productImage} />
     <View style={styles.itemContent}>
-      <Text style={styles.cartItemName}>{item.product.name}</Text>
+      <Text style={styles.cartItemName}>{item.product.productName}</Text>
       <Text style={styles.productPrice}>Price: RM{item.product.price.toFixed(2)}</Text>
       <View style={styles.quantityContainer}>
         <Text style={styles.quantityLabel}>Quantity:</Text>
@@ -57,14 +57,14 @@ export default class ShoppingCartScreen extends Component {
           style={styles.quantityInput}
           value={item.quantity.toString()}
           onChangeText={(newQuantity) =>
-            this.handleQuantityChange(item.product.id, newQuantity)
+            this.handleQuantityChange(item.product.productId, newQuantity)
           }
           keyboardType="numeric"
         />
       </View>
     </View>
       <TouchableOpacity
-        onPress={() => this.handleRemoveFromCart(item.product.id)}
+        onPress={() => this.handleRemoveFromCart(item.product.productId)}
         style={styles.deleteButton}
       >
         <Text style={styles.deleteButtonText}>Delete</Text>
@@ -92,7 +92,7 @@ export default class ShoppingCartScreen extends Component {
   // Removes an item from the shopping cart based on the product ID
   handleRemoveFromCart = async (productId) => {
     this.setState((prevState) => ({
-      shoppingCart: prevState.shoppingCart.filter((item) => item.product.id !== productId),
+      shoppingCart: prevState.shoppingCart.filter((item) => item.product.productId !== productId),
     }),async()=>{
           try {
             // Update AsyncStorage to reflect the change
@@ -110,7 +110,7 @@ export default class ShoppingCartScreen extends Component {
   
     this.setState((prevState) => ({
       shoppingCart: prevState.shoppingCart.map((item) =>
-        item.product.id === productId ? { ...item, quantity: parsedQuantity } : item
+        item.product.productId === productId ? { ...item, quantity: parsedQuantity } : item
       ),
     }), async()=>{
         try {
@@ -142,11 +142,15 @@ export default class ShoppingCartScreen extends Component {
     console.log('Shopping cart:', shoppingCart);
     return (
       <View style={styles.container}>
-          <FlatList
-            data={shoppingCart}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={this.renderCartItem}
-          />
+        <View>
+          <Text style={styles.header}>Cart</Text>
+        </View>
+
+        <FlatList
+          data={shoppingCart}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={this.renderCartItem}
+        />
 
 
         <View style={styles.totalPriceContainer}>
@@ -174,6 +178,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: 'black',
   },
 
   cartItem: {
@@ -257,8 +262,8 @@ const styles = StyleSheet.create({
   },
 
   productImage: {
-    width: 100,
-    height: 100,
+    width: 60,
+    height: 60,
     resizeMode: 'cover',
     marginRight: 12,
   },

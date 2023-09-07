@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, Image, FlatList, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
 let SQLite = require('react-native-sqlite-storage');
+let config = require('../Config');
 
 const categories = [
   {
@@ -40,7 +41,7 @@ const categories = [
     ],
   },{
     title: 'Chilled and Frozens',
-    category: 'snack',
+    category: 'frozen',
     images: [
       require('../images/cheese.jpg'),
       require('../images/cheese.jpg'),
@@ -65,8 +66,35 @@ export default class Home extends Component {
     this.scrollViewRef = React.createRef();
     this.state = {
       currentIndex: 0,
+      isFetching: false,
+      categories: ["Vegetable","Fruit","Snack","Beverage","frozen"],
+      products: []
     };
+
     this.db = SQLite.openDatabase({ name: 'db.sqlite' }, this.openCallback, this.errorCallback);
+    this._load = this._load.bind(this);
+  }
+
+  _load() {
+    let url = config.settings.serverPath + '/api/products';
+    this.setState({isFetching: true});
+    fetch(url)
+      .then(response => {
+        console.log(response);
+        if (!response.ok) {
+          Alert.alert('Error:', response.status.toString());
+          throw Error('Error ' + response.status);
+        }
+        this.setState({isFetching: false});
+        return response.json();
+      })
+      .then(products => {
+        console.log(products);
+        this.setState({products: products});
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
  
@@ -81,13 +109,9 @@ export default class Home extends Component {
               for (let i = 0; i < results.rows.length; i++) {
                 console.log("User " + i + ":", results.rows.item(i));
               }
-            }); 
-        
-      
+            });    
     });
-
-    
-   
+    this._load();
     
   }
   

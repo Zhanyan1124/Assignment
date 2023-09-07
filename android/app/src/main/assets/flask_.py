@@ -55,20 +55,6 @@ def show(id):
     else:
         return jsonify(None), 200
 
-@app.route('/api/products/<string:category>', methods=['GET'])
-def showByCat(category):
-    db = sqlite3.connect(DB)
-    cursor = db.cursor()
-    cursor.execute('SELECT * FROM products WHERE category=?', (category,))
-    rows = cursor.fetchall()
-    db.close()
-    print(rows)
-    rows_as_dict = []
-    for row in rows:
-        row_as_dict = get_row_as_dict(row)
-        rows_as_dict.append(row_as_dict)
-
-    return jsonify(rows_as_dict), 200
 
 
 if __name__ == '__main__':

@@ -32,7 +32,7 @@ export default class OrderSummary extends Component {
   // This method defined how the item in the shopping cart should be rendered
   renderCartItem = ({ item }) => (
     <View style={styles.cartItem}>
-      <Text>{item.product.name} x {item.quantity}</Text>
+      <Text>{item.product.productName} x {item.quantity}</Text>
       <Text>RM{(item.product.price * item.quantity).toFixed(2)}</Text>
     </View>
   );

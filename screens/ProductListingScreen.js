@@ -12,7 +12,8 @@ export default class ProductListingScreen extends Component{
       selectedCategory: '',
       searchQuery: '',
       products: [],
-      isFetching : false
+      isFetching : false,
+      image:''
     };
     this._load = this._load.bind(this);
   }
@@ -46,10 +47,11 @@ export default class ProductListingScreen extends Component{
 
 // renderProductFunction for FlatList 
 renderProduct = ({item}) => {
+
   return (
     <View style={styles.productItem}>
-      <TouchableOpacity onPress={() => this.props.navigation.navigate('ProductDetailScreen', { product: item.productId })}>
-        <Image source={require(item.image)} style={styles.productImage} resizeMode="cover" />
+      <TouchableOpacity onPress={() => this.props.navigation.navigate('ProductDetailScreen', { productID: item.productId })}>
+        <Image  source={{uri: item.image}} style={styles.productImage} resizeMode="cover" /> 
         <View style={styles.productInfo}>
         <Text style={styles.productName}>{item.productName}</Text>
         <Text style={styles.productPrice}>RM{item.price.toFixed(2)}</Text>
@@ -131,7 +133,7 @@ renderProduct = ({item}) => {
             <FlatList 
               data={filteredProducts}
               renderItem={this.renderProduct}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.productId}
               numColumns={3}
               columnWrapperStyle={styles.productList}
             />
@@ -223,8 +225,9 @@ const styles = StyleSheet.create ({
   },
 
   productImage: {
-    width: '100%',
-    height: 80, 
+    width: '80%',
+    marginLeft: '10%',
+    height: 90, 
     borderRadius: 8,
     marginBottom: 5, 
   },
