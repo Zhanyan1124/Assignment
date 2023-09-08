@@ -14,9 +14,13 @@ const clearCart = async () => {
 
 export default class PaymentSuccessfulScreen extends Component {
 
+  //Clear the cart 
   async componentDidMount(){
     await clearCart();
   }
+
+  //Deduct the stock of the product
+  
 
 
   

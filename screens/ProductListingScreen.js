@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Image, Text, View, TouchableOpacity, ScrollView, FlatList, Alert} from 'react-native';
+import {StyleSheet, Image, Text, View, TouchableOpacity, ScrollView, FlatList, Alert, findNodeHandle} from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import FastImage from 'react-native-fast-image';
 
@@ -13,6 +13,7 @@ export default class ProductListingScreen extends Component{
       searchQuery: '',
       products: [],
       isFetching : false,
+      isFromHome: true
     };
     this._load = this._load.bind(this);
   }
@@ -56,10 +57,17 @@ export default class ProductListingScreen extends Component{
   }
 
   componentDidUpdate(){
-    if(this.props.route.params){
-      console.log(this.props.route.params.productID);
-      const productId = this.props.route.params.productID;
-      this.props.navigation.navigate('ProductDetailScreen',{productID: productId})
+    // Add validation so user wont navigate to productdetailscreen when doing searching and filtering
+    if (this.state.searchQuery == "" && this.state.selectedCategory == ""){ 
+      if(this.props.route.params){
+        if(this.props.route.params.productID!=null){
+          const productId = this.props.route.params.productID;
+          this.props.navigation.navigate('ProductDetailScreen',{productID: productId})
+        }
+      }
+    }else{
+      //Clear the params (productID)
+      this.props.route.params.productID= null; 
     }
   }
 
