@@ -3,52 +3,52 @@ import { View, Text, Image, FlatList, TouchableOpacity, StyleSheet, ScrollView, 
 let SQLite = require('react-native-sqlite-storage');
 let config = require('../Config');
 
-const categories = [
-  {
-    title: 'Vegetables',
-    category: 'vegetable',
-    images: [
-      require('../img/product1.jpg'),
-      require('../img/product1.jpg'),
-      require('../img/product1.jpg'),
-    ],
-  },
-  {
-    title: 'Fruits',
-    category: 'fruit',
-    images: [
-      require('../images/apple.jpg'),
-      require('../images/apple.jpg'),
-      require('../images/apple.jpg'),
-    ],
-  },
-  {
-    title: 'Snacks',
-    category: 'snack',
-    images: [
-      require('../images/lays.jpg'),
-      require('../images/lays.jpg'),
-      require('../images/lays.jpg'),
-    ],
-  },
-  {
-    title: 'Beverages',
-    category: 'beverage',
-    images: [
-      require('../images/heineken.jpg'),
-      require('../images/heineken.jpg'),
-      require('../images/heineken.jpg'),
-    ],
-  },{
-    title: 'Chilled and Frozens',
-    category: 'frozen',
-    images: [
-      require('../images/cheese.jpg'),
-      require('../images/cheese.jpg'),
-      require('../images/cheese.jpg'),
-    ],
-  }
-];
+// const categories = [
+//   {
+//     title: 'Vegetables',
+//     category: 'vegetable',
+//     images: [
+//       require('../img/product1.jpg'),
+//       require('../img/product1.jpg'),
+//       require('../img/product1.jpg'),
+//     ],
+//   },
+//   {
+//     title: 'Fruits',
+//     category: 'fruit',
+//     images: [
+//       require('../images/apple.jpg'),
+//       require('../images/apple.jpg'),
+//       require('../images/apple.jpg'),
+//     ],
+//   },
+//   {
+//     title: 'Snacks',
+//     category: 'snack',
+//     images: [
+//       require('../images/lays.jpg'),
+//       require('../images/lays.jpg'),
+//       require('../images/lays.jpg'),
+//     ],
+//   },
+//   {
+//     title: 'Beverages',
+//     category: 'beverage',
+//     images: [
+//       require('../images/heineken.jpg'),
+//       require('../images/heineken.jpg'),
+//       require('../images/heineken.jpg'),
+//     ],
+//   },{
+//     title: 'Chilled and Frozens',
+//     category: 'frozen',
+//     images: [
+//       require('../images/cheese.jpg'),
+//       require('../images/cheese.jpg'),
+//       require('../images/cheese.jpg'),
+//     ],
+//   }
+// ];
 
 const bannerImages = [
   require('../img/banner6.jpg'),
@@ -67,7 +67,7 @@ export default class Home extends Component {
     this.state = {
       currentIndex: 0,
       isFetching: false,
-      categories: ["Vegetable","Fruit","Snack","Beverage","frozen"],
+      categories: ["Vegetable","Fruit","Snack","Beverage","Chilled & Frozen"],
       products: []
     };
 
@@ -164,10 +164,10 @@ export default class Home extends Component {
 
   renderHeader = (category, navigation) => (
     <View style={styles.header}>
-      <Text style={styles.categoryTitle}>{category.title}</Text>
+      <Text style={styles.categoryTitle}>{category}</Text>
       <TouchableOpacity onPress={() => {
-      navigation.navigate('Product');
-    }}>
+          navigation.navigate('Product');
+        }}>
         <Text style={styles.viewAll}>View All</Text>
       </TouchableOpacity>
     </View>
@@ -175,17 +175,18 @@ export default class Home extends Component {
 
   renderImage = ({ item }) => (
     <View style={styles.imageContainer}>
-      <Image source={item} style={styles.image} resizeMode="cover" />
+      <Image source={{uri: item.image}} style={styles.image} resizeMode="cover" />
     </View>
   );
 
   renderCategory = ({ item }) => (
     <View>
       {this.renderHeader(item, this.props.navigation)}
+
       <FlatList
-        data={item.images}
+        data={this.state.products}
         renderItem={this.renderImage}
-        keyExtractor={(image, index) => index.toString()}
+        keyExtractor={(item) => item.productId}
         horizontal
         showsHorizontalScrollIndicator={false}
       />
@@ -200,7 +201,7 @@ export default class Home extends Component {
       <View style={styles.container}>
         {this.renderBanner()}
         <FlatList
-        data={categories}
+        data={this.state.categories}
         renderItem={({ item }) => this.renderCategory({ item, navigation })}
         keyExtractor={(category, index) => index.toString()}
         showsVerticalScrollIndicator={false}
@@ -246,7 +247,7 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
-    width: null,
-    height: null,
+    width: '70%',
+    height: 50,
   },
 });

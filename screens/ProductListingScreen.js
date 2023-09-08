@@ -13,7 +13,6 @@ export default class ProductListingScreen extends Component{
       searchQuery: '',
       products: [],
       isFetching : false,
-      image:''
     };
     this._load = this._load.bind(this);
   }
