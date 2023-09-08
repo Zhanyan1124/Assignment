@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import {StyleSheet, Image, Text, View, TouchableOpacity, ScrollView, FlatList} from 'react-native';
+import {StyleSheet, Image, Text, View, TouchableOpacity, ScrollView, FlatList, Alert} from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
+import FastImage from 'react-native-fast-image';
 
-let config = require('../Config');
 export default class ProductListingScreen extends Component{
   
   // Initial  Value
@@ -17,12 +17,17 @@ export default class ProductListingScreen extends Component{
     this._load = this._load.bind(this);
   }
 
+  
   _load() {
-    let url = config.settings.serverPath + '/api/products';
+    //Fetch product data from AWS RDS using API Gateway to trigger the AWS Lambda function 
+    //GET method is used
+    let url = "https://j6eak3fzel.execute-api.us-east-1.amazonaws.com/getProducts";
+    let params = "operation=getProducts"
+    let urlwithparams = url +"?" + params;
     this.setState({isFetching: true});
-    fetch(url)
+
+    fetch(urlwithparams)
       .then(response => {
-        console.log(response);
         if (!response.ok) {
           Alert.alert('Error:', response.status.toString());
           throw Error('Error ' + response.status);
@@ -31,7 +36,6 @@ export default class ProductListingScreen extends Component{
         return response.json();
       })
       .then(products => {
-        console.log(products);
         this.setState({products: products});
       })
       .catch(error => {
@@ -40,17 +44,32 @@ export default class ProductListingScreen extends Component{
   }
 
   componentDidMount() {
+    //Navigate user directly to ProductDetailScreen if user presses a product in HomeScreen)
+    if(this.props.route.params){
+      console.log(this.props.route.params.productID);
+      const productId = this.props.route.params.productID;
+      this.props.navigation.navigate('ProductDetailScreen',{productID: productId})
+    }
+
+    //Load all products from cloud
     this._load();
+  }
+
+  componentDidUpdate(){
+    if(this.props.route.params){
+      console.log(this.props.route.params.productID);
+      const productId = this.props.route.params.productID;
+      this.props.navigation.navigate('ProductDetailScreen',{productID: productId})
+    }
   }
 
 
 // renderProductFunction for FlatList 
 renderProduct = ({item}) => {
-
   return (
     <View style={styles.productItem}>
       <TouchableOpacity onPress={() => this.props.navigation.navigate('ProductDetailScreen', { productID: item.productId })}>
-        <Image  source={{uri: item.image}} style={styles.productImage} resizeMode="cover" /> 
+        <FastImage  source={{uri: item.image}} style={styles.productImage} resizeMode="cover" /> 
         <View style={styles.productInfo}>
         <Text style={styles.productName}>{item.productName}</Text>
         <Text style={styles.productPrice}>RM{item.price.toFixed(2)}</Text>

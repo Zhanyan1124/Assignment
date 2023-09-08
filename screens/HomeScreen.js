@@ -1,54 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Image, FlatList, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
 let SQLite = require('react-native-sqlite-storage');
-let config = require('../Config');
-
-// const categories = [
-//   {
-//     title: 'Vegetables',
-//     category: 'vegetable',
-//     images: [
-//       require('../img/product1.jpg'),
-//       require('../img/product1.jpg'),
-//       require('../img/product1.jpg'),
-//     ],
-//   },
-//   {
-//     title: 'Fruits',
-//     category: 'fruit',
-//     images: [
-//       require('../images/apple.jpg'),
-//       require('../images/apple.jpg'),
-//       require('../images/apple.jpg'),
-//     ],
-//   },
-//   {
-//     title: 'Snacks',
-//     category: 'snack',
-//     images: [
-//       require('../images/lays.jpg'),
-//       require('../images/lays.jpg'),
-//       require('../images/lays.jpg'),
-//     ],
-//   },
-//   {
-//     title: 'Beverages',
-//     category: 'beverage',
-//     images: [
-//       require('../images/heineken.jpg'),
-//       require('../images/heineken.jpg'),
-//       require('../images/heineken.jpg'),
-//     ],
-//   },{
-//     title: 'Chilled and Frozens',
-//     category: 'frozen',
-//     images: [
-//       require('../images/cheese.jpg'),
-//       require('../images/cheese.jpg'),
-//       require('../images/cheese.jpg'),
-//     ],
-//   }
-// ];
 
 const bannerImages = [
   require('../img/banner6.jpg'),
@@ -67,7 +19,7 @@ export default class Home extends Component {
     this.state = {
       currentIndex: 0,
       isFetching: false,
-      categories: ["Vegetable","Fruit","Snack","Beverage","Chilled & Frozen"],
+      categories: ["Vegetable","Fruit","Snack","Beverage","Frozen"],
       products: []
     };
 
@@ -76,9 +28,12 @@ export default class Home extends Component {
   }
 
   _load() {
-    let url = config.settings.serverPath + '/api/products';
+    let url = "https://j6eak3fzel.execute-api.us-east-1.amazonaws.com/getProducts";
+    let params = "operation=getProducts"
+    let urlwithparams = url +"?" + params;
     this.setState({isFetching: true});
-    fetch(url)
+
+    fetch(urlwithparams)
       .then(response => {
         console.log(response);
         if (!response.ok) {
@@ -89,7 +44,6 @@ export default class Home extends Component {
         return response.json();
       })
       .then(products => {
-        console.log(products);
         this.setState({products: products});
       })
       .catch(error => {
@@ -101,7 +55,7 @@ export default class Home extends Component {
   componentDidMount() {
     this.startAutoScroll();
     this.db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT , name VARCHAR(20), password VARCHAR(10), email VARCHAR(255), age INTEGER(25))',
+      tx.executeSql('CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTO_INCREMENT , name VARCHAR(20), password VARCHAR(10), email VARCHAR(255), age INTEGER(25))',
               [],  (error) => console.log("faile" + error)
             );
             tx.executeSql('SELECT * FROM users', [], (tx, results) => {
@@ -173,19 +127,27 @@ export default class Home extends Component {
     </View>
   );
 
-  renderImage = ({ item }) => (
+  renderImage = (item) => (
     <View style={styles.imageContainer}>
-      <Image source={{uri: item.image}} style={styles.image} resizeMode="cover" />
+      <TouchableOpacity style = {{width: '100%', height: '100%'}} onPress = {()=>{
+        this.props.navigation.navigate('Product',{
+          screen:'ProductListingScreen',
+          params:{
+            productID: item.productId
+          }
+        });
+      }}>
+        <Image source={{uri: item.image}} style={styles.image} resizeMode="cover" />
+      </TouchableOpacity>
     </View>
   );
 
-  renderCategory = ({ item }) => (
+  renderCategory = (category) => (
     <View>
-      {this.renderHeader(item, this.props.navigation)}
-
+      {this.renderHeader(category, this.props.navigation)}
       <FlatList
-        data={this.state.products}
-        renderItem={this.renderImage}
+        data={this.state.products.filter((product)=>{return product.category===category.toLowerCase()})}
+        renderItem={({item}) => this.renderImage(item)}
         keyExtractor={(item) => item.productId}
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -202,7 +164,7 @@ export default class Home extends Component {
         {this.renderBanner()}
         <FlatList
         data={this.state.categories}
-        renderItem={({ item }) => this.renderCategory({ item, navigation })}
+        renderItem={({ item }) => this.renderCategory(item)}
         keyExtractor={(category, index) => index.toString()}
         showsVerticalScrollIndicator={false}
        />  
@@ -230,7 +192,7 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: 20,
-    fontWeight: '#333333',
+    fontWeight: 'bold',
     color: 'black', 
   },
   viewAll: {

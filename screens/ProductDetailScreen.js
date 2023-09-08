@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import {StyleSheet, Image, Text, View, TouchableOpacity } from 'react-native';
+import {StyleSheet, Image, Text, View, TouchableOpacity,Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-let config = require('../Config');
+
 export default class ProductDetailScreen extends Component{
 
   // Initial Value
@@ -20,35 +20,46 @@ export default class ProductDetailScreen extends Component{
 
   _loadByID() {
     console.log(this.state.id);
-    let url = config.settings.serverPath + '/api/products/' + this.state.id;
-    console.log(url);
-    fetch(url)
+    //Fetch product data with given product id from AWS RDS using API Gateway to trigger the AWS Lambda function 
+    //GET method is used 
+    //ProductId is sent with the API request using the URL
+    var url = "https://j6eak3fzel.execute-api.us-east-1.amazonaws.com/getProducts";
+    let params = "operation=getProductById&productId="+ this.state.id;
+    let urlwithparams = url +"?" + params;
+    this.setState({isFetching: true});
+
+    fetch(urlwithparams)
       .then(response => {
+        console.log(response);
         if (!response.ok) {
           Alert.alert('Error:', response.status.toString());
           throw Error('Error ' + response.status);
         }
+        this.setState({isFetching: false});
         return response.json();
       })
       .then(product => {
-        console.log(product)
-        this.setState({
-          product: product
-        });
+        console.log(product);
+        this.setState({product: product});
       })
       .catch(error => {
-        console.error(error);
+        console.log(error);
       });
   }
 
   componentDidMount(){
     this._loadByID();
+    this.props.navigation.setOptions ({
+      title: this.state.product.productName
+      });
   }
   
   
   // Increase Quantity Button Function
   increaseQuantity = () => {
-    this.setState((prevState) => ({ quantity: prevState.quantity + 1}));
+    if(this.state.quantity<= this.state.product.stock){
+      this.setState((prevState) => ({ quantity: prevState.quantity + 1}));
+    }
   };
 
   // Decrease Quantity Button Function

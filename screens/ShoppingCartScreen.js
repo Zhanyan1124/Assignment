@@ -57,7 +57,7 @@ export default class ShoppingCartScreen extends Component {
           style={styles.quantityInput}
           value={item.quantity.toString()}
           onChangeText={(newQuantity) =>
-            this.handleQuantityChange(item.product.productId, newQuantity)
+            this.handleQuantityChange(item.product.productId,item.product.stock, newQuantity)
           }
           keyboardType="numeric"
         />
@@ -81,12 +81,14 @@ export default class ShoppingCartScreen extends Component {
 
   // Navigate to the 'CheckOutScreen'
   handleCheckOut = () => {
-    this.props.navigation.navigate('Product', {
-      screen: 'CheckOutScreen',
-      params: {
-        shoppingCart: this.state.shoppingCart
-      },
-    });
+    if(this.state.shoppingCart.length != 0){
+      this.props.navigation.navigate('Product', {
+        screen: 'CheckOutScreen',
+        params: {
+          shoppingCart: this.state.shoppingCart
+        },
+      });
+    }
   };
 
   // Removes an item from the shopping cart based on the product ID
@@ -105,8 +107,9 @@ export default class ShoppingCartScreen extends Component {
   };
 
   // Updates the quantity of an item in the shopping cart based on the product ID and the new quantity 
-  handleQuantityChange = async (productId, newQuantity) => {
+  handleQuantityChange = async (productId, productStock, newQuantity) => {
     const parsedQuantity = newQuantity === '' ? '' : parseInt(newQuantity, 10);
+  
   
     this.setState((prevState) => ({
       shoppingCart: prevState.shoppingCart.map((item) =>
@@ -122,7 +125,7 @@ export default class ShoppingCartScreen extends Component {
       }
     );
   };
-  
+
   
   // This method calculates the total price of all items in the shopping cart
   calculateTotalPrice = () => {
