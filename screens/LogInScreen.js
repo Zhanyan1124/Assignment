@@ -98,12 +98,8 @@ const {username, password} = this.state;
               console.error('Error saving user data:', error);
             }
             
-            this.props.navigation.navigate('ProfileScreen')
-
-            
-           
-
-           
+            this.props.navigation.navigate('ProfileScreen');
+    
             
           } else{
             this.setState({ loginError: true });

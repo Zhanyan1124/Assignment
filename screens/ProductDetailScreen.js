@@ -70,47 +70,56 @@ export default class ProductDetailScreen extends Component{
   };
 
   // This method handle adding items into shopping cart
-    handleAddToCart = async () => {
-      const { quantity } = this.state;
-      const { product } = this.state;
-      try {
-
-        // Retrieve existing cart items from AsyncStorage
-        const existingCartItems = await AsyncStorage.getItem('cartItems');
-        
-        const cartItems = existingCartItems ? JSON.parse(existingCartItems) : [];
-    
-        // Check if the selected product is already in the cart
-        const existingCartItemIndex = cartItems.findIndex(item => item.product.productId === product.productId);
-    
-        if (existingCartItemIndex !== -1) {
-          console.log('Updating existing cart item');
-          // If the product already exists, update the quantity
-          cartItems[existingCartItemIndex].quantity += quantity;
-        } else  {
-          console.log('Adding new cart item');
-          // If the product doesn't exist, add it to the cart
-          cartItems.push({ product, quantity });
-          
-    }
-  // Store the updated cart items back in AsyncStorage
-         await AsyncStorage.setItem('cartItems', JSON.stringify(cartItems));
-        console.log('Cart items stored in AsyncStorage:', cartItems);
-
-
-        this.setState({ shoppingCart: cartItems }, () => {
-          console.log('Shopping cart state updated:', this.state.shoppingCart);
-          
-          // Navigate to the Cart screen after updating the state
-          this.props.navigation.navigate('Cart', { shoppingCart: cartItems });
-        });
-    
+  handleAddToCart = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('userData');
       
-        
-      } catch (error) {
-        console.error('Error adding to cart:', error);
+      // Check whether user is logged in, only add to cart when user is logged in
+      if (userData !== null) {
+        const { quantity } = this.state;
+        const { product } = this.state;
+  
+        try {
+          // Retrieve existing cart items from AsyncStorage
+          const existingCartItems = await AsyncStorage.getItem('cartItems');
+          const cartItems = existingCartItems ? JSON.parse(existingCartItems) : [];
+  
+          // Check if the selected product is already in the cart
+          const existingCartItemIndex = cartItems.findIndex(item => item.product.productId === product.productId);
+  
+          if (existingCartItemIndex !== -1) {
+            console.log('Updating existing cart item');
+            // If the product already exists, update the quantity
+            cartItems[existingCartItemIndex].quantity += quantity;
+          } else {
+            console.log('Adding new cart item');
+            // If the product doesn't exist, add it to the cart
+            cartItems.push({ product, quantity });
+          }
+  
+          // Store the updated cart items back in AsyncStorage
+          await AsyncStorage.setItem('cartItems', JSON.stringify(cartItems));
+          console.log('Cart items stored in AsyncStorage:', cartItems);
+  
+          this.setState({ shoppingCart: cartItems }, () => {
+            console.log('Shopping cart state updated:', this.state.shoppingCart);
+            
+            // Navigate to the Cart screen after updating the state
+            this.props.navigation.navigate('Cart', { shoppingCart: cartItems });
+          });
+        } catch (error) {
+          console.error('Error adding to cart:', error);
+        }
+      } 
+      // If user is not logged in, prompt message
+      else {
+        Alert.alert("Fail to Add to Cart. Please Login.")
+        console.log('No user data found in AsyncStorage');
       }
-    };
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
+    }
+  };
   
   render () {
  
